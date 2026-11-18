@@ -454,6 +454,20 @@ describe("subagent example extension", () => {
 	});
 
 	describe("pi invocation", () => {
+		it("preserves Node runtime arguments when spawning a source checkout", async () => {
+			const invocationFile = join(tempDir, "node-runtime-argv.json");
+			const originalExecArgv = process.execArgv;
+			try {
+				process.execArgv = [...originalExecArgv, "--no-warnings"];
+				await executeSubagent(singleTask(fixtureScenario.recordInvocation(invocationFile)));
+			} finally {
+				process.execArgv = originalExecArgv;
+			}
+
+			const invocation = JSON.parse(readFileSync(invocationFile, "utf8")) as { execArgv: string[] };
+			expect(invocation.execArgv).toContain("--no-warnings");
+		});
+
 		it("does not pass a Windows Bun virtual entry path to the child", async () => {
 			// Inside a Windows Bun-compiled binary, argv[1] is "B:/~BUN/root/pi.exe" and
 			// fs.existsSync() reports it as present. Recreate that relative path under the
@@ -512,7 +526,11 @@ describe("subagent example extension", () => {
 				process.chdir(originalCwd);
 			}
 
-			const invocation = JSON.parse(readFileSync(invocationFile, "utf8")) as { argv: string[]; cwd: string };
+			const invocation = JSON.parse(readFileSync(invocationFile, "utf8")) as {
+				argv: string[];
+				execArgv?: string[];
+				cwd: string;
+			};
 			expect(invocation.cwd).toBe(realpathSync(sessionChild));
 			expect(invocation.argv[invocation.argv.indexOf("--model") + 1]).toBe("session-model");
 		});

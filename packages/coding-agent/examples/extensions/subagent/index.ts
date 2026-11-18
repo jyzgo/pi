@@ -297,7 +297,7 @@ function getPiInvocation(args: string[]): { command: string; args: string[] } {
 		currentScript !== undefined &&
 		(currentScript.startsWith("/$bunfs/root/") || /^[A-Za-z]:[\\/]~BUN[\\/]root[\\/]/.test(currentScript));
 	if (currentScript && !isBunVirtualScript && fs.existsSync(currentScript)) {
-		return { command: process.execPath, args: [currentScript, ...args] };
+		return { command: process.execPath, args: [...process.execArgv, currentScript, ...args] };
 	}
 
 	const execName = path.basename(process.execPath).toLowerCase();

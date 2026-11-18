@@ -39,7 +39,7 @@ if (task.startsWith("record-argv:")) {
 } else if (task.startsWith("record-invocation:")) {
 	fs.writeFileSync(
 		task.slice("record-invocation:".length),
-		JSON.stringify({ argv: process.argv, cwd: process.cwd() }),
+		JSON.stringify({ argv: process.argv, execArgv: process.execArgv, cwd: process.cwd() }),
 	);
 	emitMessage(assistant("done"));
 } else if (task === "tool-then-final") {
